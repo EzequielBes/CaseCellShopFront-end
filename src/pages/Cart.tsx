@@ -36,9 +36,14 @@ const Cart: React.FC = () => {
       setOrderConfirmed({ orderNumber });
       clearCart();
       addToast('success', 'Compra realizada com sucesso!');
-    } catch (error) {
+    } catch (error: any) {
       console.error('Falha no checkout', error);
-      addToast('error', 'Falha ao finalizar a compra. Tente novamente.');
+      const errorMessage = error.response?.data?.message;
+      if (errorMessage === 'Insufficient stock') {
+        addToast('error', 'Estoque insuficiente para um ou mais itens no carrinho.');
+      } else {
+        addToast('error', 'Falha ao finalizar a compra. Tente novamente.');
+      }
     } finally {
       setIsCheckingOut(false);
     }

@@ -7,6 +7,10 @@ import Products from '../pages/Products';
 import Cart from '../pages/Cart';
 import Orders from '../pages/Orders';
 import AdminProducts from '../pages/admin/AdminProducts';
+import Inventory from '../pages/admin/Inventory';
+import Financial from '../pages/admin/Financial';
+import Accounting from '../pages/admin/Accounting';
+import Billing from '../pages/admin/Billing';
 import ProtectedRoute from '../components/ProtectedRoute';
 import AdminRoute from '../components/AdminRoute';
 
@@ -35,6 +39,38 @@ const AppRoutes: React.FC = () => {
         element={
           <AdminRoute>
             <AdminProducts />
+          </AdminRoute>
+        } 
+      />
+      <Route 
+        path="/admin/inventory" 
+        element={
+          <AdminRoute>
+            <Inventory />
+          </AdminRoute>
+        } 
+      />
+      <Route 
+        path="/admin/financial" 
+        element={
+          <AdminRoute>
+            <Financial />
+          </AdminRoute>
+        } 
+      />
+      <Route 
+        path="/admin/accounting" 
+        element={
+          <AdminRoute>
+            <Accounting />
+          </AdminRoute>
+        } 
+      />
+      <Route 
+        path="/admin/billing" 
+        element={
+          <AdminRoute>
+            <Billing />
           </AdminRoute>
         } 
       />

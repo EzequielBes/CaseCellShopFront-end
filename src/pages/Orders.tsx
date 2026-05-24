@@ -1,12 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import { Package, Clock, CheckCircle, ChevronDown, CreditCard } from 'lucide-react';
+import { Package, Clock, CheckCircle, ChevronDown, CreditCard, XCircle } from 'lucide-react';
 import { orderService } from '../services/orders';
 import { useToast } from '../contexts/ToastContext';
 import Button from '../components/ui/Button';
 
 interface OrderItem {
   product_id: string;
-  name: string;
+  name?: string;
+  product_name?: string;
+  title?: string;
+  product?: {
+    name?: string;
+    title?: string;
+  };
   quantity: number;
   price: number;
 }
@@ -14,7 +20,7 @@ interface OrderItem {
 interface Order {
   id: string;
   order_number: string;
-  status: 'pending' | 'paid' | 'shipped' | 'delivered';
+  status: 'waiting_payment' | 'concluido' | 'cancelado' | 'pending' | 'paid' | 'shipped' | 'delivered';
   items: OrderItem[];
   total: number;
   created_at: string;
@@ -59,14 +65,25 @@ const Orders: React.FC = () => {
 
   const getStatusIcon = (status: Order['status']) => {
     switch (status) {
-      case 'paid': return <CheckCircle size={18} className="text-green-500" />;
-      case 'delivered': return <CheckCircle size={18} className="text-green-500" />;
-      default: return <Clock size={18} className="text-amber-500" />;
+      case 'concluido':
+      case 'paid':
+      case 'delivered': 
+        return <CheckCircle size={18} className="text-green-500" />;
+      case 'cancelado':
+        return <XCircle size={18} className="text-gray-400" />;
+      case 'waiting_payment':
+      case 'pending':
+        return <Clock size={18} className="text-amber-500" />;
+      default: 
+        return <Clock size={18} className="text-blue-500" />;
     }
   };
 
   const getStatusText = (status: Order['status']) => {
     switch (status) {
+      case 'waiting_payment': return 'Aguardando Pagamento';
+      case 'concluido': return 'Pago';
+      case 'cancelado': return 'Cancelado';
       case 'pending': return 'Pendente';
       case 'paid': return 'Pago';
       case 'shipped': return 'Enviado';
@@ -76,10 +93,7 @@ const Orders: React.FC = () => {
   };
 
   const calculateOrderTotal = (order: Order) => {
-    // Se a API retornar um total válido e maior que zero, usamos ele
     if (order.total && Number(order.total) > 0) return Number(order.total);
-    
-    // Caso contrário, calculamos a partir dos itens para evitar o 0.00
     return (order.items || []).reduce((acc, item) => {
       return acc + (Number(item.price || 0) * Number(item.quantity || 0));
     }, 0);
@@ -106,10 +120,12 @@ const Orders: React.FC = () => {
         <div className="space-y-4">
           {orders.map((order, index) => {
             const total = calculateOrderTotal(order);
+            const isCancelled = order.status === 'cancelado';
+            
             return (
               <div 
                 key={order.id} 
-                className="card group animate-in fade-in slide-in-from-bottom-2 duration-500"
+                className={`card group animate-in fade-in slide-in-from-bottom-2 duration-500 ${isCancelled ? 'opacity-60 grayscale-[0.5]' : ''}`}
                 style={{ animationDelay: `${index * 50}ms`, animationFillMode: 'backwards' }}
               >
                 <div 
@@ -117,11 +133,11 @@ const Orders: React.FC = () => {
                   onClick={() => setExpandedOrder(expandedOrder === order.id ? null : order.id)}
                 >
                   <div className="flex items-center space-x-6">
-                    <div className="w-12 h-12 bg-creamy-100 text-creamy-500 rounded-xl flex items-center justify-center transition-transform duration-300 group-hover:scale-110">
+                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center transition-transform duration-300 group-hover:scale-110 ${isCancelled ? 'bg-gray-100 text-gray-400' : 'bg-creamy-100 text-creamy-500'}`}>
                       <Package size={24} />
                     </div>
                     <div>
-                      <h3 className="font-bold text-creamy-800">Pedido #{order.order_number}</h3>
+                      <h3 className={`font-bold ${isCancelled ? 'text-gray-500 line-through' : 'text-creamy-800'}`}>Pedido #{order.order_number}</h3>
                       <p className="text-xs text-creamy-400 uppercase font-bold tracking-widest">
                         {new Date(order.created_at).toLocaleDateString('pt-BR')}
                       </p>
@@ -133,7 +149,7 @@ const Orders: React.FC = () => {
                       <p className="text-xs text-creamy-400 uppercase font-bold tracking-widest mb-1">Status</p>
                       <div className="flex items-center space-x-2 bg-white px-3 py-1 rounded-full border border-creamy-100 shadow-sm">
                         {getStatusIcon(order.status)}
-                        <span className="text-sm font-bold text-creamy-700 capitalize">
+                        <span className={`text-sm font-bold capitalize ${isCancelled ? 'text-gray-500' : 'text-creamy-700'}`}>
                           {getStatusText(order.status)}
                         </span>
                       </div>
@@ -141,7 +157,7 @@ const Orders: React.FC = () => {
                     
                     <div className="text-right min-w-[80px]">
                       <p className="text-xs text-creamy-400 uppercase font-bold tracking-widest mb-1">Total</p>
-                      <p className="text-lg font-black text-creamy-700">
+                      <p className={`text-lg font-black ${isCancelled ? 'text-gray-500' : 'text-creamy-700'}`}>
                         R$ {total.toFixed(2)}
                       </p>
                     </div>
@@ -154,7 +170,7 @@ const Orders: React.FC = () => {
 
                 {expandedOrder === order.id && (
                   <div className="px-6 pb-6 pt-2 border-t border-creamy-50 space-y-6 animate-in slide-in-from-top-2 duration-300">
-                    {order.status === 'pending' && (
+                    {(order.status === 'pending' || order.status === 'waiting_payment') && (
                       <div className="bg-amber-50 border border-amber-100 p-4 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-4 mt-4 animate-in zoom-in-95 duration-300">
                         <div className="flex items-center text-amber-800">
                           <CreditCard size={20} className="mr-3 flex-shrink-0" />
@@ -180,9 +196,11 @@ const Orders: React.FC = () => {
                           <div key={idx} className="flex justify-between items-center py-2 border-b border-creamy-50 last:border-0 group/item">
                             <div className="flex items-center space-x-4">
                               <span className="text-sm font-bold text-creamy-400 w-6 transition-colors group-hover/item:text-creamy-600">{item.quantity}x</span>
-                              <span className="font-medium text-creamy-700 transition-colors group-hover/item:text-creamy-900">{item.name}</span>
+                              <span className={`font-medium transition-colors group-hover/item:text-creamy-900 ${isCancelled ? 'text-gray-400 line-through' : 'text-creamy-700'}`}>
+                                {item.name || item.product_name || 'Produto'}
+                              </span>
                             </div>
-                            <span className="font-bold text-creamy-600">
+                            <span className={`font-bold ${isCancelled ? 'text-gray-400' : 'text-creamy-600'}`}>
                               R$ {(Number(item.price || 0) * Number(item.quantity || 0)).toFixed(2)}
                             </span>
                           </div>

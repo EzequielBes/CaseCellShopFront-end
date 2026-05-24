@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { ShoppingCart, User, LogOut, Package, ShieldCheck } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useCart } from '../contexts/CartContext';
@@ -10,12 +10,15 @@ const Header: React.FC = () => {
   const { cartCount } = useCart();
   const { addToast } = useToast();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const handleLogout = () => {
     logout();
     addToast('info', 'Sessão encerrada');
     navigate('/login');
   };
+
+  const isActive = (path: string) => location.pathname === path;
 
   return (
     <header className="bg-white border-b border-creamy-200 sticky top-0 z-50">
@@ -25,25 +28,59 @@ const Header: React.FC = () => {
         </Link>
 
         <nav className="flex items-center space-x-6">
-          <Link to="/products" className="text-creamy-700 hover:text-creamy-900 font-medium transition-colors">
+          <Link 
+            to="/products" 
+            className={`font-medium transition-colors ${isActive('/products') ? 'text-creamy-900 underline underline-offset-4 decoration-2 decoration-creamy-500' : 'text-creamy-700 hover:text-creamy-900'}`}
+          >
             Produtos
           </Link>
           
           {isAuthenticated && (
-            <Link to="/orders" className="text-creamy-700 hover:text-creamy-900 font-medium transition-colors flex items-center">
+            <Link 
+              to="/orders" 
+              className={`font-medium transition-colors flex items-center ${isActive('/orders') ? 'text-creamy-900 underline underline-offset-4 decoration-2 decoration-creamy-500' : 'text-creamy-700 hover:text-creamy-900'}`}
+            >
               <Package size={18} className="mr-1" />
               Pedidos
             </Link>
           )}
 
           {isAdmin && (
-            <Link to="/admin/products" className="text-creamy-700 hover:text-creamy-900 font-medium transition-colors flex items-center">
-              <ShieldCheck size={18} className="mr-1" />
-              Painel
-            </Link>
+            <div className="hidden lg:flex items-center space-x-4 border-l border-creamy-200 pl-6">
+              <Link 
+                to="/admin/products" 
+                className={`text-[10px] font-black uppercase tracking-widest transition-colors ${isActive('/admin/products') ? 'text-creamy-800 underline underline-offset-4 decoration-2 decoration-creamy-500' : 'text-creamy-400 hover:text-creamy-800'}`}
+              >
+                Produtos
+              </Link>
+              <Link 
+                to="/admin/inventory" 
+                className={`text-[10px] font-black uppercase tracking-widest transition-colors ${isActive('/admin/inventory') ? 'text-creamy-800 underline underline-offset-4 decoration-2 decoration-creamy-500' : 'text-creamy-400 hover:text-creamy-800'}`}
+              >
+                Estoque
+              </Link>
+              <Link 
+                to="/admin/billing" 
+                className={`text-[10px] font-black uppercase tracking-widest transition-colors ${isActive('/admin/billing') ? 'text-creamy-800 underline underline-offset-4 decoration-2 decoration-creamy-500' : 'text-creamy-400 hover:text-creamy-800'}`}
+              >
+                Faturamento
+              </Link>
+              <Link 
+                to="/admin/financial" 
+                className={`text-[10px] font-black uppercase tracking-widest transition-colors ${isActive('/admin/financial') ? 'text-creamy-800 underline underline-offset-4 decoration-2 decoration-creamy-500' : 'text-creamy-400 hover:text-creamy-800'}`}
+              >
+                Financeiro
+              </Link>
+              <Link 
+                to="/admin/accounting" 
+                className={`text-[10px] font-black uppercase tracking-widest transition-colors ${isActive('/admin/accounting') ? 'text-creamy-800 underline underline-offset-4 decoration-2 decoration-creamy-500' : 'text-creamy-400 hover:text-creamy-800'}`}
+              >
+                Contábil
+              </Link>
+            </div>
           )}
 
-          <Link to="/cart" className="relative p-2 text-creamy-700 hover:text-creamy-900 transition-colors">
+          <Link to="/cart" className={`relative p-2 transition-colors ${isActive('/cart') ? 'text-creamy-900' : 'text-creamy-700 hover:text-creamy-900'}`}>
             <ShoppingCart size={22} />
             {cartCount > 0 && (
               <span className="absolute top-0 right-0 bg-creamy-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[1.2rem] text-center">
@@ -68,7 +105,7 @@ const Header: React.FC = () => {
             </div>
           ) : (
             <div className="flex items-center space-x-4">
-              <Link to="/login" className="text-creamy-700 hover:text-creamy-900 font-medium transition-colors">
+              <Link to="/login" className={`font-medium transition-colors ${isActive('/login') ? 'text-creamy-900' : 'text-creamy-700 hover:text-creamy-900'}`}>
                 Entrar
               </Link>
               <Link to="/signup" className="btn-primary py-1.5 px-4 text-sm">

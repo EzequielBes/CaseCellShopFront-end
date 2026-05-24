@@ -8,6 +8,6 @@ export const orderService = {
     return api.get('/orders/history');
   },
   confirmPayment: async (orderNumber: string) => {
-    return api.post('/orders/confirm-payment', { order_number: orderNumber, status: 'paid' });
+    return api.post('/orders/confirm-payment', { order_number: orderNumber, status: 'concluido' });
   },
 };

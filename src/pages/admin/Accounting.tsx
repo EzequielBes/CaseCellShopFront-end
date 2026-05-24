@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { BookOpen, ArrowRightLeft, Loader2 } from 'lucide-react';
 import { erpService } from '../../services/erp';
 import { useToast } from '../../contexts/ToastContext';
+import { formatCurrency } from '../../utils/format';
 
 interface AccountingEntry {
   id: string;
@@ -117,7 +118,7 @@ const Accounting: React.FC = () => {
                     </td>
                     <td className="px-6 py-4 text-right">
                       <span className="text-sm font-black text-creamy-800">
-                        R$ {getEntryValue(entry).toFixed(2)}
+                        {formatCurrency(getEntryValue(entry))}
                       </span>
                     </td>
                   </tr>

@@ -6,6 +6,7 @@ import { productSchema, ProductFormValues } from '../../schemas/productSchemas';
 import { productService } from '../../services/products';
 import { erpService } from '../../services/erp';
 import { useToast } from '../../contexts/ToastContext';
+import { parseBrazilianNumber } from '../../utils/format';
 import Input from '../../components/ui/Input';
 import Button from '../../components/ui/Button';
 
@@ -18,14 +19,15 @@ const AdminProducts: React.FC = () => {
     control, 
     handleSubmit, 
     reset, 
+    setValue,
     formState: { errors } 
   } = useForm<ProductFormValues>({
     resolver: zodResolver(productSchema) as any,
     defaultValues: {
       name: '',
       type: '',
-      price: 0,
-      discount: 0,
+      price: '' as any,
+      discount: '' as any,
       description: '',
       quantity: 0,
       images: [''],
@@ -40,39 +42,36 @@ const AdminProducts: React.FC = () => {
   const onSubmit: SubmitHandler<ProductFormValues> = async (data) => {
     setIsLoading(true);
     try {
-      // 1. Create the product - Omit quantity from this payload as the backend likely doesn't expect it
+      // 1. Parse Brazilian format strings to actual numbers
+      const parsedPrice = typeof data.price === 'string' ? parseBrazilianNumber(data.price) : Number(data.price);
+      const parsedDiscount = typeof data.discount === 'string' ? parseBrazilianNumber(data.discount) : Number(data.discount || 0);
+
+      // 2. Prepare payload - Backend expects 'initial_quantity' instead of 'quantity'
       const { quantity, ...productData } = data;
       const payload = {
         ...productData,
-        price: Number(data.price),
-        discount: Number(data.discount || 0),
+        price: parsedPrice,
+        discount: parsedDiscount,
+        initial_quantity: Number(quantity || 0),
         images: data.images.filter(img => img && img.trim() !== ''),
       };
 
-      const response = await productService.createProduct(payload);
-      const newProduct = response.data;
-      const productId = newProduct.id;
-
-      // 2. Adjust stock if quantity is > 0
-      const initialQuantity = Number(quantity || 0);
-      if (productId && initialQuantity > 0) {
-        try {
-          await erpService.addStock({
-            product_id: productId,
-            quantity: initialQuantity,
-            reference_id: 'Initial Stock'
-          });
-        } catch (stockError) {
-          console.error('Falha ao definir estoque inicial', stockError);
-          addToast('info', 'Produto criado, mas houve um erro ao definir o estoque inicial.');
-        }
-      }
+      await productService.createProduct(payload);
 
       addToast('success', 'Produto criado com sucesso!');
-      reset();
+      reset({
+        name: '',
+        type: '',
+        price: '' as any,
+        discount: '' as any,
+        description: '',
+        quantity: 0,
+        images: [''],
+      });
     } catch (error: any) {
       console.error('Falha ao criar produto', error);
-      const errorMessage = error.response?.data?.message || 'Verifique os dados e tente novamente.';
+      const apiMessage = error.response?.data?.message;
+      const errorMessage = Array.isArray(apiMessage) ? apiMessage.join(', ') : apiMessage || 'Verifique os dados e tente novamente.';
       addToast('error', `Falha ao criar produto: ${errorMessage}`);
     } finally {
       setIsLoading(false);
@@ -107,18 +106,16 @@ const AdminProducts: React.FC = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <Input
-              label="Preço (R$)"
-              type="number"
-              step="0.01"
-              placeholder="0.00"
+              label="Preço (Padrao: 1.000,00)"
+              type="text"
+              placeholder="0,00"
               {...register('price')}
               error={errors.price?.message}
             />
             <Input
-              label="Desconto (R$)"
-              type="number"
-              step="0.01"
-              placeholder="0.00"
+              label="Desconto (Padrao: 10,00)"
+              type="text"
+              placeholder="0,00"
               {...register('discount')}
               error={errors.discount?.message}
             />

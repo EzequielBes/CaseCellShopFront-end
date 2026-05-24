@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { ShoppingCart, Tag } from 'lucide-react';
+import { ShoppingCart, Tag, Box } from 'lucide-react';
 import { Product, useCart } from '../contexts/CartContext';
 import { useToast } from '../contexts/ToastContext';
+import { formatCurrency } from '../utils/format';
 import Button from './ui/Button';
 import Modal from './ui/Modal';
 
@@ -24,6 +25,32 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
     setIsModalOpen(false);
   };
 
+  const getStockBadge = () => {
+    if (product.stock === undefined) return null;
+    
+    if (product.stock <= 0) {
+      return (
+        <span className="absolute top-3 right-3 bg-red-500 text-white text-[10px] font-black px-2 py-1 rounded-lg shadow-md uppercase">
+          Esgotado
+        </span>
+      );
+    }
+    
+    if (product.stock < 10) {
+      return (
+        <span className="absolute top-3 right-3 bg-amber-500 text-white text-[10px] font-black px-2 py-1 rounded-lg shadow-md uppercase">
+          Últimas {product.stock} un.
+        </span>
+      );
+    }
+
+    return (
+      <span className="absolute top-3 right-3 bg-green-500 text-white text-[10px] font-black px-2 py-1 rounded-lg shadow-md uppercase">
+        Em Estoque ({product.stock})
+      </span>
+    );
+  };
+
   return (
     <>
       <div className="card group">
@@ -36,9 +63,10 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
           {discount > 0 && (
             <div className="absolute top-3 left-3 bg-creamy-500 text-white text-xs font-bold px-2 py-1 rounded-lg flex items-center shadow-md">
               <Tag size={12} className="mr-1" />
-              POUPE R$ {discount.toFixed(2)}
+              POUPE {formatCurrency(discount)}
             </div>
           )}
+          {getStockBadge()}
         </div>
         
         <div className="p-5 space-y-3">
@@ -61,11 +89,11 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
             <div className="flex flex-col">
               {discount > 0 && (
                 <span className="text-xs text-creamy-400 line-through">
-                  R$ {price.toFixed(2)}
+                  {formatCurrency(price)}
                 </span>
               )}
               <span className="text-xl font-black text-creamy-700">
-                R$ {discountedPrice.toFixed(2)}
+                {formatCurrency(discountedPrice)}
               </span>
             </div>
             
@@ -73,6 +101,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
               onClick={() => setIsModalOpen(true)}
               className="p-3 rounded-2xl"
               title="Adicionar ao carrinho"
+              disabled={product.stock !== undefined && product.stock <= 0}
             >
               <ShoppingCart size={20} />
             </Button>
@@ -88,8 +117,18 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
         confirmText="Adicionar ao Carrinho"
         cancelText="Voltar"
       >
-        <p>Você deseja adicionar <strong>{product.name}</strong> ao seu carrinho de compras?</p>
-        <p className="text-sm mt-2 text-creamy-400">Preço: R$ {discountedPrice.toFixed(2)}</p>
+        <div className="space-y-4">
+          <p>Você deseja adicionar <strong>{product.name}</strong> ao seu carrinho de compras?</p>
+          <div className="flex items-center justify-between p-3 bg-creamy-50 rounded-xl">
+            <span className="text-sm font-medium text-creamy-600">Preço Unitário</span>
+            <span className="font-black text-creamy-800">{formatCurrency(discountedPrice)}</span>
+          </div>
+          {product.stock !== undefined && (
+            <p className="text-xs text-creamy-400 flex items-center">
+              <Box size={14} className="mr-1" /> Disponível: {product.stock} unidades
+            </p>
+          )}
+        </div>
       </Modal>
     </>
   );

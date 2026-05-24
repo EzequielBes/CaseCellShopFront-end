@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Search, Filter, ChevronLeft, ChevronRight, Loader2 } from 'lucide-react';
 import { productService } from '../services/products';
+import { erpService } from '../services/erp';
 import { Product } from '../contexts/CartContext';
 import ProductCard from '../components/ProductCard';
 import Button from '../components/ui/Button';
@@ -23,7 +24,20 @@ const Products: React.FC = () => {
         type: type || undefined 
       });
       const data = response.data.products || response.data;
-      setProducts(Array.isArray(data) ? data : []);
+      const productsArray: Product[] = Array.isArray(data) ? data : [];
+      
+      // Attempt to enrich with stock if not present
+      const enrichedProducts = await Promise.all(productsArray.map(async (p) => {
+        if (p.stock !== undefined) return p;
+        try {
+          const stockRes = await erpService.getStock(p.id);
+          return { ...p, stock: stockRes.data.quantity || 0 };
+        } catch (e) {
+          return { ...p, stock: 0 };
+        }
+      }));
+
+      setProducts(enrichedProducts);
     } catch (error) {
       console.error('Falha ao buscar produtos', error);
       setProducts([]);

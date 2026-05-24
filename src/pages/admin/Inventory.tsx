@@ -9,7 +9,7 @@ import Button from '../../components/ui/Button';
 const Inventory: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [stockLevels, setStockLevels] = useState<Record<string, number>>({});
-  const [adjustments, setAdjustments] = useState<Record<string, number>>({});
+  const [adjustments, setAdjustments] = useState<Record<string, string>>({}); // Store as strings
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [adjusting, setAdjusting] = useState<string | null>(null);
@@ -46,8 +46,9 @@ const Inventory: React.FC = () => {
   }, []);
 
   const handleSaveStock = async (productId: string) => {
-    const amount = adjustments[productId];
-    if (amount === undefined || amount === 0) return;
+    const amountStr = adjustments[productId];
+    const amount = parseInt(amountStr || '0');
+    if (isNaN(amount) || amount === 0) return;
 
     setAdjusting(productId);
     try {
@@ -62,7 +63,7 @@ const Inventory: React.FC = () => {
         [productId]: (prev[productId] || 0) + amount
       }));
       
-      setAdjustments(prev => ({ ...prev, [productId]: 0 }));
+      setAdjustments(prev => ({ ...prev, [productId]: '' }));
       addToast('success', 'Estoque ajustado com sucesso');
     } catch (error) {
       console.error('Falha ao ajustar estoque', error);
@@ -110,7 +111,7 @@ const Inventory: React.FC = () => {
         {filteredProducts.map((product) => {
           const stock = stockLevels[product.id] || 0;
           const isLow = stock < 10;
-          const adjustment = adjustments[product.id] || 0;
+          const adjustment = adjustments[product.id] || '';
           
           return (
             <div key={product.id} className="card p-6 flex flex-col lg:flex-row items-center justify-between gap-6">
@@ -143,9 +144,9 @@ const Inventory: React.FC = () => {
                   <div className="flex flex-col">
                     <p className="text-[10px] font-bold text-creamy-400 uppercase tracking-tighter px-2">Ajustar (+/-)</p>
                     <input 
-                      type="number"
-                      value={adjustment || ''}
-                      onChange={(e) => setAdjustments(prev => ({ ...prev, [product.id]: parseInt(e.target.value) || 0 }))}
+                      type="text"
+                      value={adjustment}
+                      onChange={(e) => setAdjustments(prev => ({ ...prev, [product.id]: e.target.value }))}
                       placeholder="0"
                       className="w-24 bg-transparent border-0 focus:ring-0 text-center font-black text-creamy-800 placeholder:text-creamy-200"
                     />
@@ -153,7 +154,7 @@ const Inventory: React.FC = () => {
                   
                   <Button 
                     onClick={() => handleSaveStock(product.id)}
-                    disabled={adjusting === product.id || adjustment === 0}
+                    disabled={adjusting === product.id || adjustment === '' || adjustment === '0'}
                     isLoading={adjusting === product.id}
                     className="p-3 rounded-xl h-11"
                     title="Salvar Ajuste"

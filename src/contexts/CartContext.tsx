@@ -8,6 +8,7 @@ export interface Product {
   description: string;
   images: string[];
   type: string;
+  stock?: number;
 }
 
 export interface CartItem extends Omit<Product, 'price' | 'discount'> {

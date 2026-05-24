@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Package, Clock, CheckCircle, ChevronDown, CreditCard, XCircle } from 'lucide-react';
 import { orderService } from '../services/orders';
 import { useToast } from '../contexts/ToastContext';
+import { formatCurrency } from '../utils/format';
 import Button from '../components/ui/Button';
 
 interface OrderItem {
@@ -158,7 +159,7 @@ const Orders: React.FC = () => {
                     <div className="text-right min-w-[80px]">
                       <p className="text-xs text-creamy-400 uppercase font-bold tracking-widest mb-1">Total</p>
                       <p className={`text-lg font-black ${isCancelled ? 'text-gray-500' : 'text-creamy-700'}`}>
-                        R$ {total.toFixed(2)}
+                        {formatCurrency(total)}
                       </p>
                     </div>
 
@@ -201,7 +202,7 @@ const Orders: React.FC = () => {
                               </span>
                             </div>
                             <span className={`font-bold ${isCancelled ? 'text-gray-400' : 'text-creamy-600'}`}>
-                              R$ {(Number(item.price || 0) * Number(item.quantity || 0)).toFixed(2)}
+                              {formatCurrency(Number(item.price || 0) * Number(item.quantity || 0))}
                             </span>
                           </div>
                         ))}

@@ -5,6 +5,7 @@ import { useCart } from '../contexts/CartContext';
 import { useAuth } from '../contexts/AuthContext';
 import { useToast } from '../contexts/ToastContext';
 import { orderService } from '../services/orders';
+import { formatCurrency } from '../utils/format';
 import Button from '../components/ui/Button';
 
 const Cart: React.FC = () => {
@@ -102,7 +103,7 @@ const Cart: React.FC = () => {
                 <h3 className="text-lg font-bold text-creamy-800 truncate">{item.name}</h3>
                 <p className="text-sm text-creamy-400 mb-2">{item.type}</p>
                 <span className="text-lg font-black text-creamy-700">
-                  R$ {(Number(item.price) - Number(item.discount || 0)).toFixed(2)}
+                  {formatCurrency(Number(item.price) - Number(item.discount || 0))}
                 </span>
               </div>
 
@@ -138,7 +139,7 @@ const Cart: React.FC = () => {
             <div className="space-y-4">
               <div className="flex justify-between text-creamy-500">
                 <span>Subtotal</span>
-                <span>R$ {(cartTotal || 0).toFixed(2)}</span>
+                <span>{formatCurrency(cartTotal || 0)}</span>
               </div>
               <div className="flex justify-between text-creamy-500">
                 <span>Frete</span>
@@ -146,7 +147,7 @@ const Cart: React.FC = () => {
               </div>
               <div className="pt-4 border-t border-creamy-100 flex justify-between items-end">
                 <span className="text-lg font-bold text-creamy-800">Total</span>
-                <span className="text-3xl font-black text-creamy-700">R$ {(cartTotal || 0).toFixed(2)}</span>
+                <span className="text-3xl font-black text-creamy-700">{formatCurrency(cartTotal || 0)}</span>
               </div>
             </div>
             <Button 

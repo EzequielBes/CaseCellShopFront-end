@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { DollarSign, TrendingUp, TrendingDown, Calendar, Loader2 } from 'lucide-react';
 import { erpService } from '../../services/erp';
 import { useToast } from '../../contexts/ToastContext';
+import { formatCurrency } from '../../utils/format';
 
 interface FinancialEntry {
   id: string;
@@ -70,7 +71,7 @@ const Financial: React.FC = () => {
           </div>
           <div>
             <p className="text-xs text-creamy-400 uppercase font-bold tracking-widest mb-1">Saldo Atual</p>
-            <p className="text-3xl font-black text-creamy-800">R$ {Number(displayBalance || 0).toFixed(2)}</p>
+            <p className="text-3xl font-black text-creamy-800">{formatCurrency(displayBalance || 0)}</p>
           </div>
         </div>
       </div>
@@ -106,7 +107,7 @@ const Financial: React.FC = () => {
                 <div className={`text-xl font-black ${
                   entry.type === 'REVENUE' ? 'text-green-600' : 'text-red-600'
                 }`}>
-                  {entry.type === 'REVENUE' ? '+' : '-'} R$ {Number(entry.amount || 0).toFixed(2)}
+                  {entry.type === 'REVENUE' ? '+' : '-'} {formatCurrency(entry.amount || 0)}
                 </div>
               </div>
             ))

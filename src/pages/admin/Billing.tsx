@@ -3,6 +3,7 @@ import { FileText, Clock, CheckCircle, Loader2, Search } from 'lucide-react';
 import { erpService } from '../../services/erp';
 import { orderService } from '../../services/orders';
 import { useToast } from '../../contexts/ToastContext';
+import { formatCurrency } from '../../utils/format';
 
 interface Invoice {
   id: string;
@@ -34,14 +35,12 @@ const Billing: React.FC = () => {
           const invData = invRes.data?.data || invRes.data;
           
           if (invData) {
-            // Ensure order_number from order is used if missing in invoice
             invoiceList.push({
               ...invData,
               order_number: invData.order_number || order.order_number
             });
           }
         } catch (e) {
-          // Skip if no invoice found
         }
       }
       setInvoices(invoiceList);
@@ -127,7 +126,7 @@ const Billing: React.FC = () => {
 
                   <div className="text-right min-w-[100px]">
                     <p className="text-xs text-creamy-400 uppercase font-bold tracking-widest mb-1">Valor</p>
-                    <p className="text-xl font-black text-creamy-800">R$ {displayValue.toFixed(2)}</p>
+                    <p className="text-xl font-black text-creamy-800">{formatCurrency(displayValue)}</p>
                   </div>
                 </div>
               </div>

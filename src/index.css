@@ -1,13 +1,33 @@
-body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-creamy-50 text-charcoal antialiased overflow-x-hidden;
+  }
 }
 
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+@layer components {
+  .card {
+    @apply bg-white rounded-2xl shadow-sm border border-creamy-200 overflow-hidden transition-all duration-300 hover:shadow-md hover:border-creamy-300;
+  }
+  .input {
+    @apply w-full px-4 py-2 bg-white border border-creamy-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-creamy-500 focus:border-transparent transition-all duration-300;
+  }
+  .btn-primary {
+    @apply px-6 py-2 bg-creamy-500 text-white rounded-xl font-medium hover:bg-creamy-600 active:scale-95 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100 shadow-sm hover:shadow-md;
+  }
+  .btn-secondary {
+    @apply px-6 py-2 bg-creamy-100 text-creamy-700 rounded-xl font-medium hover:bg-creamy-200 active:scale-95 transition-all duration-300 border border-creamy-200 disabled:opacity-50 disabled:active:scale-100;
+  }
+}
+
+/* Custom Smooth Transitions */
+.page-transition {
+  @apply animate-in fade-in slide-in-from-bottom-2 duration-500 ease-out;
+}
+
+.hover-lift {
+  @apply transition-transform duration-300 hover:-translate-y-1 hover:shadow-lg;
 }

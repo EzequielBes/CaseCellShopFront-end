@@ -1,25 +1,31 @@
 import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import { BrowserRouter as Router } from 'react-router-dom';
+import { AuthProvider } from './contexts/AuthContext';
+import { CartProvider } from './contexts/CartContext';
+import AppRoutes from './routes/AppRoutes';
+import Header from './components/Header';
+import { ToastProvider } from './contexts/ToastContext';
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Router>
+      <AuthProvider>
+        <ToastProvider>
+          <CartProvider>
+            <div className="min-h-screen flex flex-col">
+              <Header />
+              <main className="flex-grow">
+                <AppRoutes />
+              </main>
+              <footer className="py-10 border-t border-creamy-100 bg-white text-center">
+                <p className="text-sm text-creamy-400 font-medium">
+                  © 2026 StackShop. Tecnologia e estilo em um só lugar.
+                </p>
+              </footer>            </div>
+          </CartProvider>
+        </ToastProvider>
+      </AuthProvider>
+    </Router>
   );
 }
 

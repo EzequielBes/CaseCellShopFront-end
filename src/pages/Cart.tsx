@@ -14,7 +14,7 @@ const Cart: React.FC = () => {
   const { addToast } = useToast();
   const navigate = useNavigate();
   const [isCheckingOut, setIsCheckingOut] = useState(false);
-  const [orderConfirmed, setOrderConfirmed] = useState<{ orderNumber: string } | null>(null);
+  const [orderConfirmed, setOrderConfirmed] = useState<{ orderNumber: string, paymentMethod?: string } | null>(null);
 
   const handleCheckout = async () => {
     if (!isAuthenticated) {
@@ -30,11 +30,17 @@ const Cart: React.FC = () => {
         quantity: item.quantity,
       }));
       const response = await orderService.checkout(items);
-      const orderNumber = response.data.order_number || 'N/A';
+      const { order_number, forma_de_pagamento } = response.data;
       
+      const orderNumber = order_number || 'N/A';
+      
+      // ERP flow trigger: simulate payment confirmation
       await orderService.confirmPayment(orderNumber);
       
-      setOrderConfirmed({ orderNumber });
+      setOrderConfirmed({ 
+        orderNumber, 
+        paymentMethod: forma_de_pagamento 
+      });
       clearCart();
       addToast('success', 'Compra realizada com sucesso!');
     } catch (error: any) {
@@ -57,9 +63,20 @@ const Cart: React.FC = () => {
           <ShoppingBag size={48} />
         </div>
         <h1 className="text-4xl font-black text-creamy-800">Pedido Confirmado!</h1>
-        <p className="text-creamy-500 max-w-md mx-auto">
-          Obrigado pela sua compra. Seu pedido <span className="font-bold text-creamy-700">#{orderConfirmed.orderNumber}</span> foi realizado com sucesso.
-        </p>
+        <div className="max-w-md mx-auto space-y-4 text-center">
+          <p className="text-creamy-500">
+            Obrigado pela sua compra. Seu pedido <span className="font-bold text-creamy-700">#{orderConfirmed.orderNumber}</span> foi realizado com sucesso.
+          </p>
+          {orderConfirmed.paymentMethod && (
+            <div className="bg-creamy-50 p-6 rounded-3xl border border-creamy-100 shadow-sm animate-in zoom-in-95 duration-500">
+              <p className="text-xs font-bold text-creamy-400 uppercase tracking-widest mb-2">Forma de Pagamento (PIX)</p>
+              <p className="font-mono text-sm break-all bg-white p-3 rounded-xl border border-creamy-100 text-creamy-800 select-all">
+                {orderConfirmed.paymentMethod}
+              </p>
+              <p className="text-[10px] text-creamy-400 mt-2 italic">Acesse seu banco para realizar o pagamento.</p>
+            </div>
+          )}
+        </div>
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-8">
           <Link to="/products">
             <Button variant="secondary">Continuar Comprando</Button>

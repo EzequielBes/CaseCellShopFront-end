@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { BookOpen, ArrowRightLeft, Loader2 } from 'lucide-react';
+import { BookOpen, ArrowRightLeft, Loader2, RefreshCw } from 'lucide-react';
 import { erpService } from '../../services/erp';
 import { useToast } from '../../contexts/ToastContext';
 import { formatCurrency } from '../../utils/format';
@@ -19,10 +19,13 @@ interface AccountingEntry {
 const Accounting: React.FC = () => {
   const [entries, setEntries] = useState<AccountingEntry[]>([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const { addToast } = useToast();
 
-  const fetchData = async () => {
-    setLoading(true);
+  const fetchData = async (isManual = false) => {
+    if (isManual) setRefreshing(true);
+    else setLoading(true);
+
     try {
       const response = await erpService.getAccountingEntries();
       const resData = response.data;
@@ -40,11 +43,13 @@ const Accounting: React.FC = () => {
       }
       
       setEntries(list);
+      if (isManual) addToast('info', 'Lançamentos contábeis atualizados');
     } catch (error) {
       console.error('Falha ao buscar lançamentos contábeis', error);
       addToast('error', 'Falha ao carregar lançamentos contábeis');
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
   };
 
@@ -69,12 +74,21 @@ const Accounting: React.FC = () => {
   return (
     <div className="container mx-auto px-4 py-12 space-y-8 animate-in fade-in duration-700">
       <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-4xl font-black text-creamy-800 tracking-tight">Contabilidade</h1>
-          <p className="text-creamy-400 mt-2 font-medium">Livro razão e lançamentos de auditoria</p>
+        <div className="flex items-center gap-4">
+          <div>
+            <h1 className="text-4xl font-black text-creamy-800 tracking-tight">Contabilidade</h1>
+            <p className="text-creamy-400 mt-2 font-medium">Livro razão e lançamentos de auditoria</p>
+          </div>
+          <button 
+            onClick={() => fetchData(true)}
+            className={`p-3 rounded-full bg-white border border-creamy-100 text-creamy-400 hover:text-creamy-600 hover:shadow-sm transition-all ${refreshing ? 'animate-spin' : ''}`}
+            title="Sincronizar com ERP"
+          >
+            <RefreshCw size={20} />
+          </button>
         </div>
         <div className="w-12 h-12 bg-creamy-100 text-creamy-500 rounded-2xl flex items-center justify-center">
-          <BookOpen size={24} />
+          < BookOpen size={24} />
         </div>
       </div>
 

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Package, AlertTriangle, Plus, Minus, Search, Loader2, Save } from 'lucide-react';
+import { Package, AlertTriangle, Search, Loader2, Save, RefreshCw } from 'lucide-react';
 import { erpService } from '../../services/erp';
 import { productService } from '../../services/products';
 import { Product } from '../../contexts/CartContext';
@@ -9,14 +9,17 @@ import Button from '../../components/ui/Button';
 const Inventory: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [stockLevels, setStockLevels] = useState<Record<string, number>>({});
-  const [adjustments, setAdjustments] = useState<Record<string, string>>({}); // Store as strings
+  const [adjustments, setAdjustments] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [search, setSearch] = useState('');
   const [adjusting, setAdjusting] = useState<string | null>(null);
   const { addToast } = useToast();
 
-  const fetchData = async () => {
-    setLoading(true);
+  const fetchData = async (isManual = false) => {
+    if (isManual) setRefreshing(true);
+    else setLoading(true);
+
     try {
       const prodResponse = await productService.getProducts({ limit: 100 });
       const prods = prodResponse.data.products || prodResponse.data;
@@ -33,11 +36,13 @@ const Inventory: React.FC = () => {
         }
       }
       setStockLevels(levels);
+      if (isManual) addToast('info', 'Estoque sincronizado');
     } catch (error) {
       console.error('Falha ao buscar estoque', error);
       addToast('error', 'Falha ao carregar dados de estoque');
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
   };
 
@@ -90,9 +95,18 @@ const Inventory: React.FC = () => {
   return (
     <div className="container mx-auto px-4 py-12 space-y-8 animate-in fade-in duration-700">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-        <div>
-          <h1 className="text-4xl font-black text-creamy-800 tracking-tight">Gestão de Estoque</h1>
-          <p className="text-creamy-400 mt-2 font-medium">Monitore e ajuste o nível de produtos disponíveis</p>
+        <div className="flex items-center gap-4">
+          <div>
+            <h1 className="text-4xl font-black text-creamy-800 tracking-tight">Gestão de Estoque</h1>
+            <p className="text-creamy-400 mt-2 font-medium">Monitore e ajuste o nível de produtos disponíveis</p>
+          </div>
+          <button 
+            onClick={() => fetchData(true)}
+            className={`p-3 rounded-full bg-white border border-creamy-100 text-creamy-400 hover:text-creamy-600 hover:shadow-sm transition-all ${refreshing ? 'animate-spin' : ''}`}
+            title="Sincronizar com ERP"
+          >
+            <RefreshCw size={20} />
+          </button>
         </div>
         
         <div className="relative w-full md:max-w-xs">

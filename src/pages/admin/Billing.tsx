@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { FileText, Clock, CheckCircle, Loader2, Search } from 'lucide-react';
+import { FileText, Clock, CheckCircle, Loader2, RefreshCw } from 'lucide-react';
 import { erpService } from '../../services/erp';
 import { orderService } from '../../services/orders';
 import { useToast } from '../../contexts/ToastContext';
@@ -20,10 +20,13 @@ interface Invoice {
 const Billing: React.FC = () => {
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const { addToast } = useToast();
 
-  const fetchData = async () => {
-    setLoading(true);
+  const fetchData = async (isManual = false) => {
+    if (isManual) setRefreshing(true);
+    else setLoading(true);
+
     try {
       const ordersRes = await orderService.getHistory();
       const orders = ordersRes.data || [];
@@ -41,14 +44,17 @@ const Billing: React.FC = () => {
             });
           }
         } catch (e) {
+          // Skip if no invoice found
         }
       }
       setInvoices(invoiceList);
+      if (isManual) addToast('info', 'Faturamento atualizado');
     } catch (error) {
       console.error('Falha ao buscar faturas', error);
       addToast('error', 'Falha ao carregar faturas');
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
   };
 
@@ -74,9 +80,18 @@ const Billing: React.FC = () => {
   return (
     <div className="container mx-auto px-4 py-12 space-y-8 animate-in fade-in duration-700">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-        <div>
-          <h1 className="text-4xl font-black text-creamy-800 tracking-tight">Faturamento</h1>
-          <p className="text-creamy-400 mt-2 font-medium">Gestão de faturas e recebíveis</p>
+        <div className="flex items-center gap-4">
+          <div>
+            <h1 className="text-4xl font-black text-creamy-800 tracking-tight">Faturamento</h1>
+            <p className="text-creamy-400 mt-2 font-medium">Gestão de faturas e recebíveis</p>
+          </div>
+          <button 
+            onClick={() => fetchData(true)}
+            className={`p-3 rounded-full bg-white border border-creamy-100 text-creamy-400 hover:text-creamy-600 hover:shadow-sm transition-all ${refreshing ? 'animate-spin' : ''}`}
+            title="Sincronizar com ERP"
+          >
+            <RefreshCw size={20} />
+          </button>
         </div>
       </div>
 

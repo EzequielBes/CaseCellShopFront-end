@@ -21,7 +21,7 @@ interface OrderItem {
 interface Order {
   id: string;
   order_number: string;
-  status: 'waiting_payment' | 'concluido' | 'cancelado' | 'pending' | 'paid' | 'shipped' | 'delivered';
+  status: 'esperando pagamento' | 'em andamento' | 'concluido' | 'cancelado' | 'waiting_payment' | 'pending' | 'paid' | 'shipped' | 'delivered';
   items: OrderItem[];
   total: number;
   created_at: string;
@@ -72,9 +72,12 @@ const Orders: React.FC = () => {
         return <CheckCircle size={18} className="text-green-500" />;
       case 'cancelado':
         return <XCircle size={18} className="text-gray-400" />;
+      case 'esperando pagamento':
       case 'waiting_payment':
       case 'pending':
         return <Clock size={18} className="text-amber-500" />;
+      case 'em andamento':
+        return <Clock size={18} className="text-blue-500" />;
       default: 
         return <Clock size={18} className="text-blue-500" />;
     }
@@ -82,7 +85,9 @@ const Orders: React.FC = () => {
 
   const getStatusText = (status: Order['status']) => {
     switch (status) {
-      case 'waiting_payment': return 'Aguardando Pagamento';
+      case 'esperando pagamento':
+      case 'waiting_payment': return 'Esperando Pagamento';
+      case 'em andamento': return 'Em Andamento';
       case 'concluido': return 'Pago';
       case 'cancelado': return 'Cancelado';
       case 'pending': return 'Pendente';

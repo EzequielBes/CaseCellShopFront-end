@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { DollarSign, TrendingUp, TrendingDown, Calendar, Loader2 } from 'lucide-react';
+import { DollarSign, TrendingUp, TrendingDown, Calendar, Loader2, RefreshCw } from 'lucide-react';
 import { erpService } from '../../services/erp';
 import { useToast } from '../../contexts/ToastContext';
 import { formatCurrency } from '../../utils/format';
@@ -16,10 +16,13 @@ const Financial: React.FC = () => {
   const [history, setHistory] = useState<FinancialEntry[]>([]);
   const [apiBalance, setApiBalance] = useState<number>(0);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const { addToast } = useToast();
 
-  const fetchData = async () => {
-    setLoading(true);
+  const fetchData = async (isManual = false) => {
+    if (isManual) setRefreshing(true);
+    else setLoading(true);
+    
     try {
       const historyRes = await erpService.getFinancialHistory();
       const historyData = historyRes.data || [];
@@ -27,11 +30,14 @@ const Financial: React.FC = () => {
       
       const balanceRes = await erpService.getFinancialBalance();
       setApiBalance(balanceRes.data.balance || 0);
+      
+      if (isManual) addToast('info', 'Dados financeiros atualizados');
     } catch (error) {
       console.error('Falha ao buscar dados financeiros', error);
       addToast('error', 'Falha ao carregar dados financeiros');
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
   };
 
@@ -60,9 +66,18 @@ const Financial: React.FC = () => {
   return (
     <div className="container mx-auto px-4 py-12 space-y-12 animate-in fade-in duration-700">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-        <div>
-          <h1 className="text-4xl font-black text-creamy-800 tracking-tight">Financeiro</h1>
-          <p className="text-creamy-400 mt-2 font-medium">Fluxo de caixa e saldo consolidado</p>
+        <div className="flex items-center gap-4">
+          <div>
+            <h1 className="text-4xl font-black text-creamy-800 tracking-tight">Financeiro</h1>
+            <p className="text-creamy-400 mt-2 font-medium">Fluxo de caixa e saldo consolidado</p>
+          </div>
+          <button 
+            onClick={() => fetchData(true)}
+            className={`p-3 rounded-full bg-white border border-creamy-100 text-creamy-400 hover:text-creamy-600 hover:shadow-sm transition-all ${refreshing ? 'animate-spin' : ''}`}
+            title="Sincronizar com ERP"
+          >
+            <RefreshCw size={20} />
+          </button>
         </div>
         
         <div className="bg-white p-6 rounded-3xl border border-creamy-100 shadow-sm flex items-center space-x-6 min-w-[240px]">

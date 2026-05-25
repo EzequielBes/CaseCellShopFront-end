@@ -1,46 +1,70 @@
-# Getting Started with Create React App
+# StackShop - Frontend
+## 🚀 Como Iniciar
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Siga os passos abaixo para configurar e rodar o projeto em sua máquina local.
 
-## Available Scripts
+### 📋 Pré-requisitos
 
-In the project directory, you can run:
+Antes de começar, certifique-se de ter instalado:
+- [Node.js](https://nodejs.org/) (recomendado v18 ou superior)
+- [npm](https://www.npmjs.com/) (geralmente vem com o Node.js)
 
-### `npm start`
+### 🔧 Instalação
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+1. Clone o repositório ou baixe os arquivos do projeto.
+2. No terminal, navegue até a pasta raiz do projeto:
+   ```bash
+   cd frontend
+   ```
+3. Instale as dependências necessárias:
+   ```bash
+   npm install
+   ```
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+### 🏃 Rodando o Projeto
 
-### `npm test`
+Para iniciar o servidor de desenvolvimento, execute:
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+```bash
+npm start
+```
 
-### `npm run build`
+O projeto será iniciado e estará disponível em:
+[http://localhost:3001](http://localhost:3001)
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+> **Nota:** O projeto está configurado para rodar na porta **3001** por padrão via arquivo `.env`.
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+---
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+## 🛠️ Tecnologias Utilizadas
 
-### `npm run eject`
+- **React 19**: Biblioteca principal para construção da interface.
+- **TypeScript**: Adiciona tipagem estática para maior segurança e produtividade.
+- **Tailwind CSS**: Framework CSS para estilização moderna e rápida.
+- **React Router DOM**: Gerenciamento de rotas e navegação.
+- **Axios**: Cliente HTTP para consumo da API.
+- **Lucide React**: Biblioteca de ícones elegantes.
+- **Zod & React Hook Form**: Validação e gerenciamento de formulários.
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+## 📦 Funcionalidades Principais
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+- **Autenticação Completa**: Login e cadastro com proteção de rotas.
+- **Gestão de Carrinho**: Adição, remoção e persistência de itens.
+- **Catálogo de Produtos**: Listagem com filtros e busca.
+- **Área Administrativa**: Gestão de inventário e produtos (acesso restrito).
+- **Checkout e Pedidos**: Fluxo completo de compra e visualização de histórico.
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+## ⚙️ Configuração (Variáveis de Ambiente)
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+O arquivo `.env` na raiz do projeto contém as seguintes configurações:
 
-## Learn More
+```env
+REACT_APP_API_BASE_URL=http://localhost:3000
+PORT=3001
+```
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+- `REACT_APP_API_BASE_URL`: URL onde o seu backend está rodando.
+- `PORT`: Porta na qual o frontend será executado localmente.
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+---
+Desenvolvido com ❤️ para StackShop. © 2026.

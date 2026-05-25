@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { DollarSign, TrendingUp, TrendingDown, Calendar, Loader2, RefreshCw } from 'lucide-react';
+import { DollarSign, TrendingUp, TrendingDown, Calendar, Loader2, RefreshCw, XCircle } from 'lucide-react';
 import { erpService } from '../../services/erp';
 import { useToast } from '../../contexts/ToastContext';
 import { formatCurrency } from '../../utils/format';
 
 interface FinancialEntry {
   id: string;
-  type: 'REVENUE' | 'EXPENSE';
+  type: 'REVENUE' | 'EXPENSE' | 'CANCELLED';
   amount: number;
   description: string;
   date: string;
@@ -50,6 +50,7 @@ const Financial: React.FC = () => {
     
     return history.reduce((acc, entry) => {
       const val = Number(entry.amount || 0);
+      if (entry.type === 'CANCELLED') return acc; 
       return entry.type === 'REVENUE' ? acc + val : acc - val;
     }, 0);
   }, [apiBalance, history]);
@@ -104,15 +105,22 @@ const Financial: React.FC = () => {
             </div>
           ) : (
             history.map((entry) => (
-              <div key={entry.id} className="card p-5 flex items-center justify-between gap-4">
+              <div key={entry.id} className={`card p-5 flex items-center justify-between gap-4 ${entry.type === 'CANCELLED' ? 'border-amber-100 bg-amber-50/20' : ''}`}>
                 <div className="flex items-center space-x-4">
                   <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
-                    entry.type === 'REVENUE' ? 'bg-green-50 text-green-500' : 'bg-red-50 text-red-500'
+                    entry.type === 'REVENUE' ? 'bg-green-50 text-green-500' : 
+                    entry.type === 'CANCELLED' ? 'bg-amber-50 text-amber-500' :
+                    'bg-red-50 text-red-500'
                   }`}>
-                    {entry.type === 'REVENUE' ? <TrendingUp size={20} /> : <TrendingDown size={20} />}
+                    {entry.type === 'REVENUE' ? <TrendingUp size={20} /> : 
+                     entry.type === 'CANCELLED' ? <XCircle size={20} /> :
+                     <TrendingDown size={20} />}
                   </div>
                   <div>
-                    <h3 className="font-bold text-creamy-800">{entry.description}</h3>
+                    <h3 className={`font-bold ${entry.type === 'CANCELLED' ? 'text-amber-700' : 'text-creamy-800'}`}>
+                      {entry.description}
+                      {entry.type === 'CANCELLED' && <span className="ml-2 text-[10px] bg-amber-100 px-1.5 py-0.5 rounded-lg uppercase tracking-tighter">Cancelada</span>}
+                    </h3>
                     <p className="text-xs text-creamy-400 uppercase font-bold tracking-widest">
                       {new Date(entry.date).toLocaleDateString('pt-BR')}
                     </p>
@@ -120,9 +128,11 @@ const Financial: React.FC = () => {
                 </div>
                 
                 <div className={`text-xl font-black ${
-                  entry.type === 'REVENUE' ? 'text-green-600' : 'text-red-600'
+                  entry.type === 'REVENUE' ? 'text-green-600' : 
+                  entry.type === 'CANCELLED' ? 'text-amber-500' :
+                  'text-red-600'
                 }`}>
-                  {entry.type === 'REVENUE' ? '+' : '-'} {formatCurrency(entry.amount || 0)}
+                  {entry.type === 'REVENUE' ? '+' : entry.type === 'CANCELLED' ? '' : '-'} {formatCurrency(entry.amount || 0)}
                 </div>
               </div>
             ))

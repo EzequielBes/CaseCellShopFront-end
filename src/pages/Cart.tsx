@@ -34,7 +34,6 @@ const Cart: React.FC = () => {
       
       const orderNumber = order_number || 'N/A';
       
-      // ERP flow trigger: simulate payment confirmation
       await orderService.confirmPayment(orderNumber);
       
       setOrderConfirmed({ 
@@ -70,10 +69,21 @@ const Cart: React.FC = () => {
           {orderConfirmed.paymentMethod && (
             <div className="bg-creamy-50 p-6 rounded-3xl border border-creamy-100 shadow-sm animate-in zoom-in-95 duration-500">
               <p className="text-xs font-bold text-creamy-400 uppercase tracking-widest mb-2">Forma de Pagamento (PIX)</p>
-              <p className="font-mono text-sm break-all bg-white p-3 rounded-xl border border-creamy-100 text-creamy-800 select-all">
-                {orderConfirmed.paymentMethod}
-              </p>
-              <p className="text-[10px] text-creamy-400 mt-2 italic">Acesse seu banco para realizar o pagamento.</p>
+              <div className="bg-white p-4 rounded-2xl border border-creamy-100 flex flex-col items-center">
+                <p className="font-mono text-sm break-all text-creamy-800 select-all mb-3">
+                  {orderConfirmed.paymentMethod}
+                </p>
+                <button 
+                  onClick={() => {
+                    navigator.clipboard.writeText(orderConfirmed.paymentMethod || '');
+                    addToast('info', 'Código PIX copiado!');
+                  }}
+                  className="text-[10px] font-bold text-creamy-500 hover:text-creamy-700 underline"
+                >
+                  Copiar Código PIX
+                </button>
+              </div>
+              <p className="text-[10px] text-creamy-400 mt-3 italic">Acesse seu banco para realizar o pagamento.</p>
             </div>
           )}
         </div>

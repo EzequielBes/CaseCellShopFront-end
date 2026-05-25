@@ -67,4 +67,3 @@ PORT=3001
 - `PORT`: Porta na qual o frontend será executado localmente.
 
 ---
-Desenvolvido com ❤️ para StackShop. © 2026.

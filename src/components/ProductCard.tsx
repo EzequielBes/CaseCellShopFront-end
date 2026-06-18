@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
-import { ShoppingCart, Tag, Box } from 'lucide-react';
+import { ShoppingCart, Tag, Box, ExternalLink } from 'lucide-react';
 import { Product, useCart } from '../contexts/CartContext';
 import { useToast } from '../contexts/ToastContext';
 import { formatCurrency } from '../utils/format';
 import Button from './ui/Button';
 import Modal from './ui/Modal';
+import { motion } from 'framer-motion';
+import { Link } from 'react-router-dom';
 
 interface ProductCardProps {
   product: Product;
@@ -19,7 +21,9 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   const discount = Number(product.discount) || 0;
   const discountedPrice = price - discount;
 
-  const handleConfirmAdd = () => {
+  const handleConfirmAdd = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
     addToCart(product);
     addToast('success', `${product.name} adicionado ao carrinho!`);
     setIsModalOpen(false);
@@ -53,66 +57,80 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
 
   return (
     <>
-      <div className="card group">
-        <div className="relative aspect-square overflow-hidden bg-creamy-100">
-          <img
-            src={product.images && product.images[0] ? product.images[0] : 'https://via.placeholder.com/300?text=Sem+Imagem'}
-            alt={product.name}
-            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-          />
-          {discount > 0 && (
-            <div className="absolute top-3 left-3 bg-creamy-500 text-white text-xs font-bold px-2 py-1 rounded-lg flex items-center shadow-md">
-              <Tag size={12} className="mr-1" />
-              POUPE {formatCurrency(discount)}
-            </div>
-          )}
-          {getStockBadge()}
-        </div>
-        
-        <div className="p-5 space-y-3">
-          <div className="flex justify-between items-start">
-            <div>
-              <span className="text-[10px] font-bold text-creamy-400 uppercase tracking-widest">
-                {product.type}
+      <Link to={`/product/${product.id}`} className="block h-full">
+        <motion.div 
+          whileHover={{ y: -8 }}
+          className="card group h-full flex flex-col"
+        >
+          <div className="relative aspect-square overflow-hidden bg-creamy-100">
+            <img
+              src={product.images && product.images[0] ? product.images[0] : 'https://via.placeholder.com/300?text=Sem+Imagem'}
+              alt={product.name}
+              className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+            />
+            <div className="absolute inset-0 bg-charcoal/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+              <span className="bg-white text-charcoal p-3 rounded-full shadow-xl translate-y-4 group-hover:translate-y-0 transition-transform">
+                <ExternalLink size={20} />
               </span>
-              <h3 className="text-lg font-bold text-creamy-800 leading-tight">
-                {product.name}
-              </h3>
             </div>
+            {discount > 0 && (
+              <div className="absolute top-3 left-3 bg-creamy-500 text-white text-xs font-bold px-2 py-1 rounded-lg flex items-center shadow-md">
+                <Tag size={12} className="mr-1" />
+                POUPE {formatCurrency(discount)}
+              </div>
+            )}
+            {getStockBadge()}
           </div>
           
-          <p className="text-sm text-creamy-500 line-clamp-2 min-h-[2.5rem]">
-            {product.description}
-          </p>
-
-          <div className="flex items-center justify-between pt-2">
-            <div className="flex flex-col">
-              {discount > 0 && (
-                <span className="text-xs text-creamy-400 line-through">
-                  {formatCurrency(price)}
+          <div className="p-5 space-y-3 flex-grow flex flex-col">
+            <div className="flex justify-between items-start">
+              <div>
+                <span className="text-[10px] font-bold text-creamy-400 uppercase tracking-widest">
+                  {product.type}
                 </span>
-              )}
-              <span className="text-xl font-black text-creamy-700">
-                {formatCurrency(discountedPrice)}
-              </span>
+                <h3 className="text-lg font-bold text-creamy-800 leading-tight">
+                  {product.name}
+                </h3>
+              </div>
             </div>
             
-            <Button 
-              onClick={() => setIsModalOpen(true)}
-              className="p-3 rounded-2xl"
-              title="Adicionar ao carrinho"
-              disabled={product.stock !== undefined && product.stock <= 0}
-            >
-              <ShoppingCart size={20} />
-            </Button>
+            <p className="text-sm text-creamy-500 line-clamp-2 flex-grow">
+              {product.description}
+            </p>
+
+            <div className="flex items-center justify-between pt-2">
+              <div className="flex flex-col">
+                {discount > 0 && (
+                  <span className="text-xs text-creamy-400 line-through">
+                    {formatCurrency(price)}
+                  </span>
+                )}
+                <span className="text-xl font-black text-creamy-700">
+                  {formatCurrency(discountedPrice)}
+                </span>
+              </div>
+              
+              <Button 
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setIsModalOpen(true);
+                }}
+                className="p-3 rounded-2xl"
+                title="Adicionar ao carrinho"
+                disabled={product.stock !== undefined && product.stock <= 0}
+              >
+                <ShoppingCart size={20} />
+              </Button>
+            </div>
           </div>
-        </div>
-      </div>
+        </motion.div>
+      </Link>
 
       <Modal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        onConfirm={handleConfirmAdd}
+        onConfirm={(e: any) => handleConfirmAdd(e)}
         title="Confirmar Adição"
         confirmText="Adicionar ao Carrinho"
         cancelText="Voltar"

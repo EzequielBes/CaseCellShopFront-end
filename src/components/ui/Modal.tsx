@@ -5,11 +5,12 @@ import Button from './Button';
 interface ModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onConfirm: () => void;
+  onConfirm?: () => void;
   title: string;
   children: React.ReactNode;
   confirmText?: string;
   cancelText?: string;
+  hideFooter?: boolean;
 }
 
 const Modal: React.FC<ModalProps> = ({
@@ -20,6 +21,7 @@ const Modal: React.FC<ModalProps> = ({
   children,
   confirmText = 'Confirmar',
   cancelText = 'Cancelar',
+  hideFooter = false,
 }) => {
   if (!isOpen) return null;
 
@@ -37,14 +39,18 @@ const Modal: React.FC<ModalProps> = ({
           {children}
         </div>
 
-        <div className="flex flex-col sm:flex-row gap-3 pt-4">
-          <Button variant="secondary" onClick={onClose} className="flex-1">
-            {cancelText}
-          </Button>
-          <Button onClick={onConfirm} className="flex-1">
-            {confirmText}
-          </Button>
-        </div>
+        {!hideFooter && (
+          <div className="flex flex-col sm:flex-row gap-3 pt-4">
+            <Button variant="secondary" onClick={onClose} className="flex-1">
+              {cancelText}
+            </Button>
+            {onConfirm && (
+              <Button onClick={onConfirm} className="flex-1">
+                {confirmText}
+              </Button>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );

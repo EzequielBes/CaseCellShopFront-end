@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import { jwtDecode } from 'jwt-decode';
 
 interface User {
+  account_id: string;
   email: string;
   role: 'user' | 'admin';
   username?: string;
@@ -27,7 +28,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       try {
         const decoded: any = jwtDecode(token);
         setUser({
-          email: decoded.email,
+          account_id: decoded.account_id,
+          email: decoded.email || decoded.userEmail,
           role: decoded.role,
           username: decoded.username,
         });

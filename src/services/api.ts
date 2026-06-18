@@ -14,4 +14,15 @@ api.interceptors.request.use((config) => {
   return Promise.reject(error);
 });
 
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    const correlationId = error.response?.headers['x-correlation-id'];
+    if (correlationId) {
+      error.message = `${error.message} (Trace ID: ${correlationId})`;
+    }
+    return Promise.reject(error);
+  }
+);
+
 export default api;

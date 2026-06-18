@@ -4,6 +4,7 @@ import { useAuth } from '../contexts/AuthContext';
 import Login from '../pages/Login';
 import Signup from '../pages/Signup';
 import Products from '../pages/Products';
+import ProductDetails from '../pages/ProductDetails';
 import Cart from '../pages/Cart';
 import Orders from '../pages/Orders';
 import AdminProducts from '../pages/admin/AdminProducts';
@@ -23,6 +24,7 @@ const AppRoutes: React.FC = () => {
       <Route path="/signup" element={!isAuthenticated ? <Signup /> : <Navigate to="/" />} />
       
       <Route path="/products" element={<Products />} />
+      <Route path="/product/:id" element={<ProductDetails />} />
       <Route path="/cart" element={<Cart />} />
       
       <Route 

@@ -12,6 +12,7 @@ import Inventory from '../pages/admin/Inventory';
 import Financial from '../pages/admin/Financial';
 import Accounting from '../pages/admin/Accounting';
 import Billing from '../pages/admin/Billing';
+import OrderManagement from '../pages/admin/OrderManagement';
 import ProtectedRoute from '../components/ProtectedRoute';
 import AdminRoute from '../components/AdminRoute';
 
@@ -73,6 +74,14 @@ const AppRoutes: React.FC = () => {
         element={
           <AdminRoute>
             <Billing />
+          </AdminRoute>
+        } 
+      />
+      <Route 
+        path="/admin/orders" 
+        element={
+          <AdminRoute>
+            <OrderManagement />
           </AdminRoute>
         } 
       />

@@ -18,6 +18,8 @@ const Cart: React.FC = () => {
   const [isCheckingOut, setIsCheckingOut] = useState(false);
   const [pendingOrder, setPendingOrder] = useState<{ orderNumber: string, amount: number } | null>(null);
   const [orderConfirmed, setOrderConfirmed] = useState<boolean>(false);
+  const [distance, setDistance] = useState<number>(0);
+  const freightTotal = distance * 1.5;
 
   const handleCheckout = async () => {
     if (!isAuthenticated) {
@@ -32,7 +34,7 @@ const Cart: React.FC = () => {
         product_id: item.id,
         quantity: item.quantity,
       }));
-      const response = await orderService.checkout(items);
+      const response = await orderService.checkout(items, distance);
       const { order_number, total_amount } = response.data;
       
       setPendingOrder({
@@ -165,13 +167,27 @@ const Cart: React.FC = () => {
                   <span>Subtotal</span>
                   <span>{formatCurrency(cartTotal || 0)}</span>
                 </div>
+                <div className="flex justify-between items-center text-creamy-500">
+                  <span>Frete (1.5 / km)</span>
+                  <div className="flex items-center space-x-2">
+                    <input 
+                      type="number" 
+                      min="0"
+                      className="w-20 p-1 border border-creamy-200 rounded text-right"
+                      value={distance}
+                      onChange={(e) => setDistance(Number(e.target.value) || 0)}
+                      placeholder="Km"
+                    />
+                    <span>km</span>
+                  </div>
+                </div>
                 <div className="flex justify-between text-creamy-500">
-                  <span>Frete</span>
-                  <span className="text-green-500 font-bold uppercase text-xs">Grátis</span>
+                  <span>Valor do Frete</span>
+                  <span className="font-bold">{formatCurrency(freightTotal)}</span>
                 </div>
                 <div className="pt-4 border-t border-creamy-100 flex justify-between items-end">
                   <span className="text-lg font-bold text-creamy-800">Total</span>
-                  <span className="text-3xl font-black text-creamy-700">{formatCurrency(cartTotal || 0)}</span>
+                  <span className="text-3xl font-black text-creamy-700">{formatCurrency((cartTotal || 0) + freightTotal)}</span>
                 </div>
               </div>
               <Button 

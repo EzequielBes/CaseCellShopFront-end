@@ -77,6 +77,12 @@ const Header: React.FC = () => {
               >
                 Contábil
               </Link>
+              <Link 
+                to="/admin/orders" 
+                className={`text-[10px] font-black uppercase tracking-widest transition-colors ${isActive('/admin/orders') ? 'text-creamy-800 underline underline-offset-4 decoration-2 decoration-creamy-500' : 'text-creamy-400 hover:text-creamy-800'}`}
+              >
+                Compras
+              </Link>
             </div>
           )}
 

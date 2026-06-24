@@ -21,9 +21,11 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   const discount = Number(product.discount) || 0;
   const discountedPrice = price - discount;
 
-  const handleConfirmAdd = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
+  const handleConfirmAdd = (e?: React.MouseEvent) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
     addToCart(product);
     addToast('success', `${product.name} adicionado ao carrinho!`);
     setIsModalOpen(false);
@@ -130,7 +132,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
       <Modal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        onConfirm={(e: any) => handleConfirmAdd(e)}
+        onConfirm={() => handleConfirmAdd()}
         title="Confirmar Adição"
         confirmText="Adicionar ao Carrinho"
         cancelText="Voltar"
